@@ -1,0 +1,19 @@
+{
+  "name": "bin_analysis_charts",
+  "private": true,
+  "scripts": {
+    "dev:web": "turbo run dev --filter=web",
+    "dev:cron": "turbo run dev --filter=cron-worker",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db:generate": "turbo run db:generate --filter=@bin-analysis/db",
+    "db:migrate": "turbo run db:migrate --filter=@bin-analysis/db",
+    "db:seed": "turbo run db:seed --filter=@bin-analysis/db"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.10.0"
+}
