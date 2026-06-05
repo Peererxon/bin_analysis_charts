@@ -25,6 +25,7 @@ export function DateRangePicker({
       <div className="flex items-center gap-2">
         <input
           type="date"
+          aria-label="Start date"
           value={fromDate}
           onChange={(e) => onFromChange(e.target.value)}
           className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -32,6 +33,7 @@ export function DateRangePicker({
         <span className="text-slate-500">to</span>
         <input
           type="date"
+          aria-label="End date"
           value={toDate}
           onChange={(e) => onToChange(e.target.value)}
           className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
