@@ -92,7 +92,7 @@ export function TopPricesTable({ data, isLoading }: TopPricesTableProps) {
               const color = getBankColor(item.bankName);
               return (
                 <tr
-                  key={`${item.bankId}-${item.date}-${item.hour}`}
+                  key={`${item.bankId}-${item.date}-${item.hour}-${index}`}
                   className="border-t border-border transition-colors hover:bg-surface-hover/50"
                 >
                   <td className="px-6 py-3 tabular-nums text-text-muted">

@@ -261,17 +261,23 @@ export async function deleteAlertRule(id: number): Promise<void> {
 }
 
 // ─── Config Endpoints ────────────────────────────────────────────
-export async function fetchConfig(): Promise<AppConfig[]> {
-  return fetchJSON<AppConfig[]>(`${API_BASE}/config`);
+export interface FilterConfig {
+  minCapitalUsd: number;
+  minMaxOfferPct: number;
+}
+
+export async function fetchConfig(): Promise<FilterConfig> {
+  return fetchJSON<FilterConfig>(`${API_BASE}/config`);
 }
 
 export async function updateConfig(
   key: string,
   value: string,
-): Promise<AppConfig> {
-  return fetchJSON<AppConfig>(`${API_BASE}/config/${key}`, {
+): Promise<FilterConfig> {
+  const bodyKey = key === 'min_capital' || key === 'min_capital_usd' ? 'min_capital_usd' : key;
+  return fetchJSON<FilterConfig>(`${API_BASE}/config`, {
     method: 'PUT',
-    body: JSON.stringify({ value }),
+    body: JSON.stringify({ [bodyKey]: Number(value) }),
   });
 }
 

@@ -75,7 +75,7 @@ async function seed() {
   const now = new Date();
   // We use 30 days
   const startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  
+
   let currentIter = startDate;
   const basePrice = 39.50;
   let totalSnaps = 0;
@@ -85,9 +85,9 @@ async function seed() {
     // Generate 1 day of data in memory
     const dayEnd = new Date(currentIter.getTime() + 24 * 60 * 60 * 1000);
     const endBound = dayEnd > now ? now : dayEnd;
-    
+
     const daySnapsToInsert = [];
-    
+
     for (let d = currentIter; d < endBound; d = new Date(d.getTime() + 10 * 60 * 1000)) {
       for (const b of activeBanks) {
         const variation = 1 + (Math.random() * 0.02 - 0.01);
@@ -127,10 +127,10 @@ async function seed() {
       for (let i = 0; i < dayOffersToInsert.length; i += chunkSize) {
         await db.insert(offers).values(dayOffersToInsert.slice(i, i + chunkSize));
       }
-      
+
       totalSnaps += daySnapsToInsert.length;
     }
-    
+
     console.log(`Inserted up to ${endBound.toISOString()} (Total: ${totalSnaps} snapshots)`);
     currentIter = dayEnd;
   }

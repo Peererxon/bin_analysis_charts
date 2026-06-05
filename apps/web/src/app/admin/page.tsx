@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Settings,
   Database,
@@ -230,19 +230,21 @@ function FiltersPanel() {
   const [saved, setSaved] = useState(false);
 
   // Initialize from config
-  useState(() => {
+  useEffect(() => {
     if (config) {
-      const mc = config.find((c) => c.key === 'min_capital');
-      const mo = config.find((c) => c.key === 'min_max_offer_pct');
-      if (mc) setMinCapital(mc.value);
-      if (mo) setMinMaxOfferPct(mo.value);
+      if (config.minCapitalUsd !== undefined) {
+        setMinCapital(String(config.minCapitalUsd));
+      }
+      if (config.minMaxOfferPct !== undefined) {
+        setMinMaxOfferPct(String(config.minMaxOfferPct));
+      }
     }
-  });
+  }, [config?.minCapitalUsd, config?.minMaxOfferPct]);
 
   const handleSave = async () => {
     try {
       if (minCapital) {
-        await updateConfig.mutateAsync({ key: 'min_capital', value: minCapital });
+        await updateConfig.mutateAsync({ key: 'min_capital_usd', value: minCapital });
       }
       if (minMaxOfferPct) {
         await updateConfig.mutateAsync({

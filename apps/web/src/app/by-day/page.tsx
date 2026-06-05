@@ -136,42 +136,50 @@ export default function ByDayPage() {
             No data available for the selected dates.
           </div>
         ) : (
-          <div className="relative h-[400px] w-full flex items-end gap-6 pt-10 overflow-x-auto pb-8">
-            {selectedDates.sort().map(dateStr => {
-              const dayData = chartData.filter(d => d.date === dateStr);
-              if (dayData.length === 0) return null;
-              
-              return (
-                <div key={dateStr} className="flex flex-col items-center flex-shrink-0 gap-2">
-                  <div className="flex items-end gap-1 h-[300px]">
+          <div className="w-full overflow-x-auto pb-8">
+            <div className="relative h-[400px] flex items-end gap-8 pt-20 px-4 min-w-max">
+              {selectedDates.sort().map(dateStr => {
+                const dayData = chartData.filter(d => d.date === dateStr);
+                if (dayData.length === 0) return null;
+                
+                return (
+                  <div key={dateStr} className="flex flex-col items-center flex-shrink-0 gap-4">
+                    <div className="flex items-end gap-2 h-[300px]">
                     {dayData.map(item => {
                       const heightPct = Math.max(5, ((item.topPrice - minPrice) / (maxPrice - minPrice)) * 100);
                       const color = getBankColor(item.bankName);
                       return (
-                        <div 
-                          key={item.bankId}
-                          className="relative group w-8 sm:w-10 rounded-t-sm transition-all hover:brightness-110"
-                          style={{ 
-                            height: `${heightPct}%`, 
-                            backgroundColor: color 
-                          }}
-                        >
-                          {/* Tooltip */}
-                          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-10 w-max bg-surface-primary border border-border p-2 rounded shadow-xl">
-                            <span className="text-xs font-bold text-text-primary">{item.bankName}</span>
-                            <span className="text-sm font-mono text-accent-cyan">{item.topPrice.toFixed(2)} VES</span>
-                            <span className="text-[10px] text-text-muted truncate max-w-[150px]">{item.merchantName}</span>
+                        <div key={item.bankId} className="flex flex-col items-center justify-end h-full">
+                          <div 
+                            className="relative group w-8 sm:w-10 rounded-t-sm transition-all hover:brightness-125"
+                            style={{ 
+                              height: `${heightPct}%`, 
+                              backgroundColor: color,
+                              boxShadow: `0 -4px 12px -2px ${color}66`
+                            }}
+                          >
+                            {/* Tooltip */}
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-50 w-max bg-surface-primary/90 backdrop-blur-md border border-white/10 p-2 rounded shadow-xl">
+                              <span className="text-xs font-bold text-text-primary">{item.bankName}</span>
+                              <span className="text-sm font-mono text-accent-cyan">{item.topPrice.toFixed(2)} VES</span>
+                              <span className="text-[10px] text-text-muted truncate max-w-[150px]">{item.merchantName}</span>
+                            </div>
+                          </div>
+                          {/* Bank Name X-Axis Label */}
+                          <div className="mt-2 text-[10px] text-text-secondary w-8 sm:w-10 text-center truncate" title={item.bankName}>
+                            {item.bankName}
                           </div>
                         </div>
                       )
                     })}
                   </div>
-                  <div className="text-xs font-medium text-text-secondary">
-                    {format(new Date(dateStr + 'T12:00:00'), 'MMM d')}
+                  <div className="text-xs font-bold text-text-primary mt-2 border-t border-border pt-2 w-full text-center">
+                    {format(new Date(dateStr + 'T12:00:00'), 'MMM d, yyyy')}
                   </div>
                 </div>
               );
             })}
+            </div>
           </div>
         )}
       </div>
