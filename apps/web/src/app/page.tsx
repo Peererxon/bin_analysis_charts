@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { subHours, subDays } from 'date-fns';
+import { subHours, subDays, format } from 'date-fns';
+import * as Dialog from '@radix-ui/react-dialog';
+import { X } from 'lucide-react';
+import { DateRangePicker } from '@/components/date-range-picker';
 import { MarketChart } from '@/components/market-chart';
 import { PriceTicker } from '@/components/price-ticker';
-import { BankBarChart } from '@/components/bank-bar-chart';
 import { TopPricesTable } from '@/components/top-prices-table';
 import { ChartControls } from '@/components/chart-controls';
 import { ChartSkeleton } from '@/components/loading-skeletons';
@@ -12,10 +14,9 @@ import {
   useLatestSnapshot,
   useSnapshots,
   useBanks,
-  useTopByBank,
   useTopByDayHour,
 } from '@/lib/hooks';
-import type { IntervalValue, TimeRangeValue } from '@/lib/constants';
+import { INTERVAL_OPTIONS, type IntervalValue, type TimeRangeValue } from '@/lib/constants';
 import type { ChartDataPoint } from '@/components/market-chart';
 
 function getTimeRange(range: TimeRangeValue): { from: string; to: string } {
@@ -42,23 +43,32 @@ export default function DashboardPage() {
   const [selectedBanks, setSelectedBanks] = useState<string[]>([]);
   const [showStdDev, setShowStdDev] = useState(false);
 
+  // Custom dialog state
+  const [isCustomOpen, setIsCustomOpen] = useState(false);
+  const [customFrom, setCustomFrom] = useState(format(subDays(new Date(), 7), 'yyyy-MM-dd'));
+  const [customTo, setCustomTo] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [customInterval, setCustomInterval] = useState<IntervalValue>('1h');
+  const [isCustomActive, setIsCustomActive] = useState(false);
+
   // ─── Queries ───────────────────────────────────────────────
   const { data: banks, isLoading: banksLoading } = useBanks();
   const { data: latestSnapshot, isLoading: latestLoading, isFetching: latestFetching } =
     useLatestSnapshot();
 
-  const dateRange = useMemo(() => getTimeRange(timeRange), [timeRange]);
+  const dateRange = useMemo(() => {
+    if (isCustomActive) {
+      return { 
+        from: new Date(customFrom).toISOString(), 
+        to: new Date(customTo + 'T23:59:59.999Z').toISOString() 
+      };
+    }
+    return getTimeRange(timeRange);
+  }, [timeRange, isCustomActive, customFrom, customTo]);
 
   const { data: snapshots, isLoading: snapshotsLoading } = useSnapshots({
     from: dateRange.from,
     to: dateRange.to,
     interval,
-  });
-
-  const { data: topByBank, isLoading: topByBankLoading } = useTopByBank({
-    from: dateRange.from,
-    to: dateRange.to,
-    limit: 10,
   });
 
   const { data: topByDayHour, isLoading: topByDayHourLoading } =
@@ -117,17 +127,34 @@ export default function DashboardPage() {
   const handleToggleBank = useCallback((bankName: string) => {
     setSelectedBanks((prev) => {
       if (prev.length === 0) {
-        // Was showing all — now exclude this one
         const all = activeBanks.map((b) => b.name);
         return all.filter((n) => n !== bankName);
       }
       if (prev.includes(bankName)) {
         const next = prev.filter((n) => n !== bankName);
-        return next.length === 0 ? [] : next; // Empty = show all
+        return next.length === 0 ? [] : next;
       }
       return [...prev, bankName];
     });
   }, [activeBanks]);
+
+  const handleIntervalChange = useCallback((newInterval: IntervalValue) => {
+    setInterval(newInterval);
+    if (isCustomActive) setIsCustomActive(false);
+    if (timeRange === 'custom') setTimeRange('7d');
+  }, [isCustomActive, timeRange]);
+
+  const handleTimeRangeChange = useCallback((newRange: TimeRangeValue) => {
+    setTimeRange(newRange);
+    if (isCustomActive) setIsCustomActive(false);
+  }, [isCustomActive]);
+
+  const applyCustomRange = () => {
+    setTimeRange('custom');
+    setInterval(customInterval);
+    setIsCustomActive(true);
+    setIsCustomOpen(false);
+  };
 
   // ─── Render ────────────────────────────────────────────────
   return (
@@ -166,11 +193,13 @@ export default function DashboardPage() {
             selectedBanks={effectiveSelectedBanks}
             onToggleBank={handleToggleBank}
             interval={interval}
-            onIntervalChange={setInterval}
+            onIntervalChange={handleIntervalChange}
             timeRange={timeRange}
-            onTimeRangeChange={setTimeRange}
+            onTimeRangeChange={handleTimeRangeChange}
             showStdDev={showStdDev}
             onToggleStdDev={() => setShowStdDev((p) => !p)}
+            onCustomOpen={() => setIsCustomOpen(true)}
+            customActive={isCustomActive}
           />
         )}
 
@@ -186,17 +215,69 @@ export default function DashboardPage() {
         )}
       </section>
 
-      {/* Bottom Grid: Bar Chart + Top 5 Table */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <BankBarChart
-          data={topByBank ?? []}
-          isLoading={topByBankLoading}
-        />
+      {/* Bottom Grid: Top 5 Table */}
+      <div className="grid gap-6">
         <TopPricesTable
           data={topByDayHour ?? []}
           isLoading={topByDayHourLoading}
         />
       </div>
+
+      <Dialog.Root open={isCustomOpen} onOpenChange={setIsCustomOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+          <Dialog.Content className="fixed left-[50%] top-[50%] z-50 w-full max-w-md translate-x-[-50%] translate-y-[-50%] rounded-xl border border-border bg-surface-primary p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-4">
+              <Dialog.Title className="text-lg font-semibold text-text-primary">
+                Custom Range
+              </Dialog.Title>
+              <Dialog.Close asChild>
+                <button className="text-text-muted hover:text-text-secondary transition-colors" aria-label="Close">
+                  <X className="h-5 w-5" />
+                </button>
+              </Dialog.Close>
+            </div>
+
+            <div className="space-y-4">
+              <DateRangePicker
+                fromDate={customFrom}
+                toDate={customTo}
+                onFromChange={setCustomFrom}
+                onToChange={setCustomTo}
+              />
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-300">Interval</label>
+                <select
+                  value={customInterval}
+                  onChange={(e) => setCustomInterval(e.target.value as IntervalValue)}
+                  className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                >
+                  {INTERVAL_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <Dialog.Close asChild>
+                  <button className="px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-secondary rounded-md transition-colors">
+                    Cancel
+                  </button>
+                </Dialog.Close>
+                <button
+                  onClick={applyCustomRange}
+                  className="px-4 py-2 text-sm font-medium bg-accent-blue text-white rounded-md hover:bg-accent-blue/90 transition-colors shadow-sm"
+                >
+                  Apply Custom Range
+                </button>
+              </div>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 }

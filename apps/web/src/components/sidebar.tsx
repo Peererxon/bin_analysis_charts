@@ -9,12 +9,14 @@ import {
   Activity,
   Menu,
   X,
+  BarChart3,
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/by-day', label: 'By Day', icon: BarChart3 },
   { href: '/compare', label: 'Compare', icon: GitCompareArrows },
   { href: '/admin', label: 'Admin', icon: Settings },
 ] as const;

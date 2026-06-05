@@ -15,6 +15,8 @@ interface ChartControlsProps {
   onTimeRangeChange: (range: TimeRangeValue) => void;
   showStdDev: boolean;
   onToggleStdDev: () => void;
+  onCustomOpen?: () => void;
+  customActive?: boolean;
 }
 
 export function ChartControls({
@@ -27,6 +29,8 @@ export function ChartControls({
   onTimeRangeChange,
   showStdDev,
   onToggleStdDev,
+  onCustomOpen,
+  customActive,
 }: ChartControlsProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -120,15 +124,21 @@ export function ChartControls({
             <button
               key={value}
               type="button"
-              onClick={() => onTimeRangeChange(value)}
+              onClick={() => {
+                if (value === 'custom' && onCustomOpen) {
+                  onCustomOpen();
+                } else {
+                  onTimeRangeChange(value);
+                }
+              }}
               className={cn(
                 'px-3 py-1.5 text-xs font-medium transition-colors',
-                timeRange === value
+                (!customActive && timeRange === value) || (customActive && value === 'custom')
                   ? 'bg-accent-blue/15 text-accent-blue'
                   : 'text-text-muted hover:bg-surface-hover hover:text-text-secondary',
               )}
               role="radio"
-              aria-checked={timeRange === value}
+              aria-checked={(!customActive && timeRange === value) || (customActive && value === 'custom')}
             >
               {label}
             </button>

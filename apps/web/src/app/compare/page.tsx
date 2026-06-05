@@ -5,6 +5,7 @@ import { format, subDays, isWithinInterval, startOfDay, endOfDay } from 'date-fn
 import { Calendar, Tag } from 'lucide-react';
 import { MarketChart, type ChartDataPoint } from '@/components/market-chart';
 import { ChartSkeleton } from '@/components/loading-skeletons';
+import { DateRangePicker } from '@/components/date-range-picker';
 import { useBanks, useCompareData } from '@/lib/hooks';
 import {
   INTERVAL_OPTIONS,
@@ -139,31 +140,12 @@ export default function ComparePage() {
                 </span>
               )}
             </legend>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label htmlFor="date-a-start" className="sr-only">Range A start date</label>
-                <input
-                  id="date-a-start"
-                  type="date"
-                  value={dateA}
-                  onChange={(e) => setDateA(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm text-text-primary focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan"
-                  aria-label="Range A start date"
-                />
-              </div>
-              <span className="flex items-center text-text-muted">to</span>
-              <div className="flex-1">
-                <label htmlFor="date-a-end" className="sr-only">Range A end date</label>
-                <input
-                  id="date-a-end"
-                  type="date"
-                  value={dateAEnd}
-                  onChange={(e) => setDateAEnd(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm text-text-primary focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan"
-                  aria-label="Range A end date"
-                />
-              </div>
-            </div>
+            <DateRangePicker
+              fromDate={dateA}
+              toDate={dateAEnd}
+              onFromChange={setDateA}
+              onToChange={setDateAEnd}
+            />
           </fieldset>
 
           {/* Range B */}
@@ -178,31 +160,12 @@ export default function ComparePage() {
                 </span>
               )}
             </legend>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <label htmlFor="date-b-start" className="sr-only">Range B start date</label>
-                <input
-                  id="date-b-start"
-                  type="date"
-                  value={dateB}
-                  onChange={(e) => setDateB(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm text-text-primary focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan"
-                  aria-label="Range B start date"
-                />
-              </div>
-              <span className="flex items-center text-text-muted">to</span>
-              <div className="flex-1">
-                <label htmlFor="date-b-end" className="sr-only">Range B end date</label>
-                <input
-                  id="date-b-end"
-                  type="date"
-                  value={dateBEnd}
-                  onChange={(e) => setDateBEnd(e.target.value)}
-                  className="w-full rounded-md border border-border bg-surface-secondary px-3 py-2 text-sm text-text-primary focus:border-accent-cyan focus:ring-1 focus:ring-accent-cyan"
-                  aria-label="Range B end date"
-                />
-              </div>
-            </div>
+            <DateRangePicker
+              fromDate={dateB}
+              toDate={dateBEnd}
+              onFromChange={setDateB}
+              onToChange={setDateBEnd}
+            />
           </fieldset>
         </div>
 
