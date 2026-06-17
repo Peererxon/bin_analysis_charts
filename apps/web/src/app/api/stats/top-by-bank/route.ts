@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { eq, and, gte, lte, desc, sql, snapshots, offers, banks } from '@bin-analysis/db';
+import { eq, and, gte, lte, desc, sql, snapshots, offers, banks, getCaracasDateString } from '@bin-analysis/db';
 import { getDb, parseDate, errorResponse } from '../../_lib/db';
 
 /**
@@ -59,10 +59,7 @@ export async function GET(request: NextRequest) {
 
     for (const row of rows) {
       // Convert to Caracas timezone for day grouping
-      const caracasDate = new Date(
-        row.capturedAt.getTime() - 4 * 60 * 60 * 1000,
-      );
-      const dayStr = caracasDate.toISOString().split('T')[0]!;
+      const dayStr = getCaracasDateString(row.capturedAt);
       const key = `${row.bankId}-${dayStr}`;
 
       if (!dayBankMap.has(key)) {

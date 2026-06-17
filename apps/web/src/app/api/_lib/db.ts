@@ -1,4 +1,4 @@
-import { createDb } from '@bin-analysis/db';
+import { createDb, formatCaracas } from '@bin-analysis/db';
 
 let _db: ReturnType<typeof createDb> | null = null;
 
@@ -18,15 +18,11 @@ export function getDb() {
 }
 
 /**
- * UTC-4 offset in milliseconds (America/Caracas).
- */
-export const CARACAS_OFFSET_MS = -4 * 60 * 60 * 1000;
-
-/**
  * Convert a date to America/Caracas timezone string.
+ * Delegates to the shared `formatCaracas()` utility.
  */
 export function toCaracasTime(date: Date): string {
-  return date.toLocaleString('es-VE', { timeZone: 'America/Caracas' });
+  return formatCaracas(date, 'long');
 }
 
 /**
