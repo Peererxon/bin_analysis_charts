@@ -23,9 +23,11 @@ export function getCaracasHour(date: Date): number {
     hour12: false,
   }).formatToParts(date);
 
-  const hourPart = parts.find((p) => p.type === 'hour');
-  // Intl returns '24' for midnight in hourCycle 'h24'; normalise to 0
-  const hour = parseInt(hourPart?.value ?? '0', 10);
+  const hourValue = parts.find((p) => p.type === 'hour')?.value;
+  if (!hourValue) {
+    throw new Error('Unable to extract Caracas hour');
+  }
+  const hour = parseInt(hourValue, 10);
   return hour === 24 ? 0 : hour;
 }
 
