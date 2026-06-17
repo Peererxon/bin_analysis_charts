@@ -45,38 +45,11 @@ export function formatPrice(price: number): string {
   }).format(price);
 }
 
-/** Format a date for the Venezuela timezone */
-export function formatDate(
-  date: string | Date,
-  style: 'short' | 'long' | 'time' = 'short',
-): string {
-  const d = typeof date === 'string' ? new Date(date) : date;
-  const options: Intl.DateTimeFormatOptions = {
-    timeZone: 'America/Caracas',
-  };
-
-  switch (style) {
-    case 'short':
-      options.month = 'short';
-      options.day = 'numeric';
-      options.hour = '2-digit';
-      options.minute = '2-digit';
-      break;
-    case 'long':
-      options.year = 'numeric';
-      options.month = 'long';
-      options.day = 'numeric';
-      options.hour = '2-digit';
-      options.minute = '2-digit';
-      break;
-    case 'time':
-      options.hour = '2-digit';
-      options.minute = '2-digit';
-      break;
-  }
-
-  return new Intl.DateTimeFormat('es-VE', options).format(d);
-}
+/**
+ * Format a date for the Venezuela timezone.
+ * Delegates to the shared `formatCaracas()` utility from `@bin-analysis/db`.
+ */
+export { formatCaracas as formatDate } from '@bin-analysis/db';
 
 /** Determine price direction */
 export function getPriceDirection(

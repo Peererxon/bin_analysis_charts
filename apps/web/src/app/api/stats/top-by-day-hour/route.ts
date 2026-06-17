@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { eq, and, gte, lte, desc, snapshots, offers, banks } from '@bin-analysis/db';
+import { eq, and, gte, lte, desc, snapshots, offers, banks, getCaracasHour, getCaracasDateString } from '@bin-analysis/db';
 import { getDb, parseDate, errorResponse } from '../../_lib/db';
 
 /**
@@ -60,11 +60,7 @@ export async function GET(request: NextRequest) {
       const hEnd = hourEnd !== null ? parseInt(hourEnd, 10) : 23;
 
       filteredRows = rows.filter((row) => {
-        // Convert UTC to Caracas (UTC-4)
-        const caracasDate = new Date(
-          row.capturedAt.getTime() - 4 * 60 * 60 * 1000,
-        );
-        const hour = caracasDate.getUTCHours();
+        const hour = getCaracasHour(row.capturedAt);
         return hStart <= hEnd
           ? hour >= hStart && hour <= hEnd
           : hour >= hStart || hour <= hEnd; // handles overnight ranges
@@ -75,19 +71,14 @@ export async function GET(request: NextRequest) {
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')!, 10) : 5;
     const topOffers = filteredRows.sort((a, b) => b.price - a.price).slice(0, limit);
 
-    const results = topOffers.map((row) => {
-      const caracasDate = new Date(
-        row.capturedAt.getTime() - 4 * 60 * 60 * 1000,
-      );
-      return {
-        bankName: row.bankName,
-        bankId: row.bankId,
-        price: row.price,
-        merchantName: row.merchantName,
-        date: caracasDate.toISOString().split('T')[0]!,
-        hour: caracasDate.getUTCHours(),
-      };
-    });
+    const results = topOffers.map((row) => ({
+      bankName: row.bankName,
+      bankId: row.bankId,
+      price: row.price,
+      merchantName: row.merchantName,
+      date: getCaracasDateString(row.capturedAt),
+      hour: getCaracasHour(row.capturedAt),
+    }));
 
     return Response.json({ data: results });
   } catch (error) {

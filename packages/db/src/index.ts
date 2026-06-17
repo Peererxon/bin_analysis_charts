@@ -29,3 +29,11 @@ export { createDb, type Database } from './client.js';
 // Re-export common drizzle-orm utilities so consumers resolve them from
 // the same ESM entry point, avoiding dual-package type conflicts.
 export { eq, and, or, gte, lte, gt, lt, desc, asc, sql, relations, inArray } from 'drizzle-orm';
+
+// ─── Timezone utilities ─────────────────────────────────────────────
+export {
+  getCaracasHour,
+  getCaracasDateString,
+  formatCaracas,
+  CARACAS_TIMEZONE,
+} from './timezone.js';
